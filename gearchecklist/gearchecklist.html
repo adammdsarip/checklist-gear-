@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gear Checklist</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Gear Check">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0f0f0f">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: #0f0f0f; 
+            color: white;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        .check-item { transition: all 0.2s; }
+        .check-item.checked { opacity: 0.4; }
+        .check-item.checked .check-box { 
+            background: #22c55e; 
+            border-color: #22c55e; 
+        }
+        .check-item.checked span { text-decoration: line-through; }
+        /* Hide browser UI when installed */
+        @media (display-mode: standalone) {
+            header { padding-top: 40px; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full bg-black/95 backdrop-blur-md border-b border-white/10 z-50">
+        <div class="max-w-md mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-lg font-bold">Gear Check</h1>
+                    <p class="text-xs text-gray-400" id="progress-text">0% packed</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="resetAll()" class="p-2 bg-white/10 rounded-lg active:scale-95 transition-transform">
+                        <span class="text-lg">↺</span>
+                    </button>
+                    <button onclick="toggleAddModal()" class="p-2 bg-white text-black rounded-lg active:scale-95 transition-transform">
+                        <span class="text-lg">+</span>
+                    </button>
+                </div>
+            </div>
+            <div class="mt-2 w-full bg-white/10 rounded-full h-1.5">
+                <div id="progress-bar" class="bg-green-500 h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-md mx-auto px-4 pt-24 pb-24 space-y-4">
+
+        <!-- Camera Body -->
+        <section>
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                <span>📷</span> Camera Body
+            </h2>
+            <div class="space-y-2" id="camera-list">
+                <label class="check-item flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer active:scale-98 transition-transform">
+                    <input type="checkbox" class="hidden" onchange="toggleCheck(this)">
+                    <div class="check-box w-5 h-5 border-2 border-white/30 rounded flex items-center justify-center transition-colors">
+                        <span class="text-white text-xs hidden check-icon">✓</span>
+                    </div>
+                    <span class="flex-1 text-sm">Main Camera Body</span>
+                    <button onclick="deleteItem(this)" class="text-red-400 p-1">🗑</button>
+                </label>
+                <label class="check-item flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer active:scale-98 transition-transform">
+                    <input type="checkbox" class="hidden" onchange="toggleCheck(this)">
+                    <div class="check-box w-5 h-5 border-2 border-white/30 rounded flex items-center justify-center transition-colors">
+                        <span class="text-white text-xs hidden check-icon">✓</span>
+                    </div>
+                    <span class="flex-1 text-sm">Backup Body</span>
+                    <button onclick="deleteItem(this)" class="text-red-400 p-1">🗑</button>
+                </label>
+            </div>
+        </section>
+
+        <!-- Lenses -->
+        <section>
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                <span>🔍</span> Lenses
+            </h2>
+            <div class="space-y-2" id="lenses-list">
+                <label class="check-item flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer active:scale-98 transition-transform">
+                    <input type="checkbox" class="hidden" onchange="toggleCheck(this)">
+                    <div class="check-box w-5 h-5 border-2 border-white/30 rounded flex items-center justify-center transition-colors">
+                        <span class="text-white text-xs hidden check-icon">✓</span>
+                    </div>
+                    <span class="flex-1 text-sm">24-70mm f/2.8</span>
+                    <button onclick="deleteItem(this)" class="text-red-400 p-1">🗑</button>
+                </label>
+                <label class="check-item flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer active:scale-98 transition-transform">
+                    <input type="checkbox" class="hidden" onchange="toggleCheck(this)">
+                    <div class="check-box w-5 h-5 border-2 border-white/30 rounded flex items-center justify-center transition-colors">
+                        <span class="text-white text-xs hidden check-icon">✓</span>
+                    </div>
+                    <span class="flex-1 text-sm">85mm f/1.4</span>
+                    <button onclick="deleteItem(this)" class="text-red-400 p-1">🗑</button>
+                </label>
+            </div>
+        </section>
+
+        <!-- Power -->
+        <section>
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                <span>🔋</span> Power & Storage
+            </h2>
+            <div class="space-y-2" id="power-list">
+                <label class="check-item flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer active:scale-98 transition-transform">
+                    <input type="checkbox" class="hidden" onchange="toggleCheck(this)">
+                    <div class="check-box w-5 h-5 border-2 border-white/30 rounded flex items-center justify-center transition-colors">
+                        <span class="text-white text-xs hidden check-icon">✓</span>
+                    </div>
+                    <span class="flex-1 text-sm">Main Battery</span>
+                    <button onclick="deleteItem(this)" class="text-red-400 p-1">🗑</button>
+                </label>
+                <label class="check-item flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer active:scale-98 transition-transform">
+                    <input type="checkbox" class="hidden" onchange="toggleCheck(this)">
+                    <div class="check-box w-5 h-5 border-2 border-white/30 rounded flex items-center justify-center transition-colors">
+                        <span class="text-white text-xs hidden check-icon">✓</span>
+                    </div>
+                    <span class="flex-1 text-sm">Backup Batteries</span>
+                    <button onclick="deleteItem(this)" class="text-red-400 p-1">🗑</button>
+                </label>
+                <label class="check-item flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer active:scale-98 transition-transform">
+                    <input type="checkbox" class="hidden" onchange="toggleCheck(this)">
+                    <div class="check-box w-5 h-5 border-2 border-white/30 rounded flex items-center justify-center transition-colors">
+                        <span class="text-white text-xs hidden check-icon">✓</span>
+                    </div>
+                    <span class="flex-1 text-sm">SD Cards (Empty)</span>
+                    <button onclick="deleteItem(this)" class="text-red-400 p-1">🗑</button>
+                </label>
+            </div>
+        </section>
+
+        <!-- Lighting -->
+        <section>
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                <span>💡</span> Lighting
+            </h2>
+            <div class="space-y-2" id="lighting-list">
+                <label class="check-item flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer active:scale-98 transition-transform">
+                    <input type="checkbox" class="hidden" onchange="toggleCheck(this)">
+                    <div class="check-box w-5 h-5 border-2 border-white/30 rounded flex items-center justify-center transition-colors">
+                        <span class="text-white text-xs hidden check-icon">✓</span>
+                    </div>
+                    <span class="flex-1 text-sm">Speedlight Flash</span>
+                    <button onclick="deleteItem(this)" class="text-red-400 p-1">🗑</button>
+                </label>
+                <label class="check-item flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer active:scale-98 transition-transform">
+                    <input type="checkbox" class="hidden" onchange="toggleCheck(this)">
+                    <div class="check-box w-5 h-5 border-2 border-white/30 rounded flex items-center justify-center transition-colors">
+                        <span class="text-white text-xs hidden check-icon">✓</span>
+                    </div>
+                    <span class="flex-1 text-sm">Flash Batteries</span>
+                    <button onclick="deleteItem(this)" class="text-red-400 p-1">🗑</button>
+                </label>
+            </div>
+        </section>
+
+        <!-- Essentials -->
+        <section>
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 flex items-center gap-1">
+                <span>🎒</span> Essentials
+            </h2>
+            <div class="space-y-2" id="essentials-list">
+                <label class="check-item flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer active:scale-98 transition-transform">
+                    <input type="checkbox" class="hidden" onchange="toggleCheck(this)">
+                    <div class="check-box w-5 h-5 border-2 border-white/30 rounded flex items-center justify-center transition-colors">
+                        <span class="text-white text-xs hidden check-icon">✓</span>
+                    </div>
+                    <span class="flex-1 text-sm">Camera Bag</span>
+                    <button onclick="deleteItem(this)" class="text-red-400 p-1">🗑</button>
+                </label>
+                <label class="check-item flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer active:scale-98 transition-transform">
+                    <input type="checkbox" class="hidden" onchange="toggleCheck(this)">
+                    <div class="check-box w-5 h-5 border-2 border-white/30 rounded flex items-center justify-center transition-colors">
+                        <span class="text-white text-xs hidden check-icon">✓</span>
+                    </div>
+                    <span class="flex-1 text-sm">Lens Cloth</span>
+                    <button onclick="deleteItem(this)" class="text-red-400 p-1">🗑</button>
+                </label>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Add Item Modal -->
+    <div id="add-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden z-50 flex items-end sm:items-center justify-center p-4">
+        <div class="bg-gray-900 border border-white/10 rounded-2xl w-full max-w-sm p-4">
+            <h3 class="text-lg font-bold mb-3">Add Item</h3>
+            
+            <select id="new-item-category" class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 mb-2 text-sm text-white">
+                <option value="camera-list">Camera Body</option>
+                <option value="lenses-list">Lenses</option>
+                <option value="power-list">Power & Storage</option>
+                <option value="lighting-list">Lighting</option>
+                <option value="essentials-list">Essentials</option>
+            </select>
+            
+            <input type="text" id="new-item-text" placeholder="Item name..." class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 mb-3 text-sm text-white placeholder-gray-500">
+            
+            <div class="flex gap-2">
+                <button onclick="toggleAddModal()" class="flex-1 py-2 border border-white/20 rounded-lg text-sm hover:bg-white/5">Cancel</button>
+                <button onclick="addItem()" class="flex-1 py-2 bg-white text-black rounded-lg text-sm font-medium hover:bg-gray-200">Add</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Install Prompt (Android) -->
+    <div id="install-prompt" class="fixed bottom-4 left-4 right-4 bg-blue-600 text-white p-4 rounded-xl hidden z-50 flex justify-between items-center">
+        <div>
+            <p class="font-medium">Install Gear Check?</p>
+            <p class="text-xs text-blue-200">Add to home screen for quick access</p>
+        </div>
+        <button onclick="installApp()" class="bg-white text-blue-600 px-4 py-2 rounded-lg text-sm font-medium">Install</button>
+    </div>
+
+    <script>
+        // Load saved state
+        window.onload = function() {
+            const saved = localStorage.getItem('gearChecklist');
+            if (saved) {
+                const state = JSON.parse(saved);
+                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach((cb, index) => {
+                    if (state[index]) {
+                        cb.checked = true;
+                        toggleCheck(cb, false);
+                    }
+                });
+            }
+            updateProgress();
+            
+            // Show install prompt on Android
+            if (window.matchMedia('(display-mode: browser)').matches && 'BeforeInstallPromptEvent' in window) {
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    window.deferredPrompt = e;
+                    document.getElementById('install-prompt').classList.remove('hidden');
+                });
+            }
+        };
+
+        function toggleCheck(checkbox, save = true) {
+            const item = checkbox.closest('.check-item');
+            const icon = item.querySelector('.check-icon');
+            
+            if (checkbox.checked) {
+                item.classList.add('checked');
+                icon.classList.remove('hidden');
+            } else {
+                item.classList.remove('checked');
+                icon.classList.add('hidden');
+            }
+            
+            if (save) saveState();
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const total = document.querySelectorAll('input[type="checkbox"]').length;
+            const checked = document.querySelectorAll('input[type="checkbox"]:checked').length;
+            const percent = total > 0 ? Math.round((checked / total) * 100) : 0;
+            
+            document.getElementById('progress-bar').style.width = percent + '%';
+            document.getElementById('progress-text').textContent = percent + '% packed (' + checked + '/' + total + ')';
+        }
+
+        function saveState() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const state = Array.from(checkboxes).map(cb => cb.checked);
+            localStorage.setItem('gearChecklist', JSON.stringify(state));
+        }
+
+        function resetAll() {
+            if (confirm('Clear all checkmarks?')) {
+                document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+                    cb.checked = false;
+                    toggleCheck(cb, false);
+                });
+                saveState();
+            }
+        }
+
+        function toggleAddModal() {
+            const modal = document.getElementById('add-modal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                document.getElementById('new-item-text').focus();
+            }
+        }
+
+        function addItem() {
+            const category = document.getElementById('new-item-category').value;
+            const text = document.getElementById('new-item-text').value.trim();
+            
+            if (!text) return;
+            
+            const container = document.getElementById(category);
+            const label = document.createElement('label');
+            label.className = 'check-item flex items-center gap-3 p-3 bg-white/5 rounded-xl cursor-pointer active:scale-98 transition-transform';
+            label.innerHTML = `
+                <input type="checkbox" class="hidden" onchange="toggleCheck(this)">
+                <div class="check-box w-5 h-5 border-2 border-white/30 rounded flex items-center justify-center transition-colors">
+                    <span class="text-white text-xs hidden check-icon">✓</span>
+                </div>
+                <span class="flex-1 text-sm">${text}</span>
+                <button onclick="deleteItem(this)" class="text-red-400 p-1">🗑</button>
+            `;
+            
+            container.appendChild(label);
+            document.getElementById('new-item-text').value = '';
+            toggleAddModal();
+            updateProgress();
+        }
+
+        function deleteItem(btn) {
+            if (confirm('Delete this item?')) {
+                btn.closest('.check-item').remove();
+                saveState();
+                updateProgress();
+            }
+        }
+
+        function installApp() {
+            const promptEvent = window.deferredPrompt;
+            if (promptEvent) {
+                promptEvent.prompt();
+                promptEvent.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('install-prompt').classList.add('hidden');
+                    }
+                });
+            }
+        }
+
+        // Close modal on outside click
+        document.getElementById('add-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'add-modal') toggleAddModal();
+        });
+
+        // Enter key to add item
+        document.getElementById('new-item-text').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addItem();
+        });
+    </script>
+</body>
+</html>
